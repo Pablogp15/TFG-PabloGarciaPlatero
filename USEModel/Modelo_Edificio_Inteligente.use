@@ -1,0 +1,242 @@
+model EdificioInteligente
+
+enum Estaciones {PRIMAVERA, VERANO, OTONO, INVIERNO} 
+enum Dias {LUNES, MARTES, MIERCOLES, JUEVES, VIERNES, SABADO, DOMINGO}
+enum Franjas {MANANA, TARDE, NOCHE}
+
+class Edificio
+end
+
+class Tiempo < ActiveObject
+    attributes
+        mes : Integer init = 1
+        estacion: Estaciones init = #PRIMAVERA
+        dia: Dias init = #LUNES
+        franja: Franjas init = #MANANA
+    operations
+        tick()
+        begin
+            -- Incrementar el mes en 1 por cada tick
+            if (self.mes = 12) then
+                self.mes := 1;
+            else
+                self.mes := self.mes+1;
+            end
+        end
+end
+
+abstract class ActiveObject -- real-time objects 
+    operations
+        tick() begin end 
+end
+
+class Sensor < ActiveObject
+    attributes
+        valor : Real
+end
+
+class Habitacion
+    attributes
+        luzIdealPromedio : Real derive : if self.habitante->isEmpty() 
+        then 0.0 else self.habitante.preferenciaLuz->sum() / self.habitante->size() endif
+        temperaturaIdealPromedio : Real derive : if self.habitante->isEmpty() 
+        then 0.0 else self.habitante.preferenciaTemperatura->sum() / self.habitante->size() endif
+end
+
+class Habitante
+    attributes
+        preferenciaLuz: Integer
+        preferenciaTemperatura: Integer
+end
+
+abstract class Regulador < ActiveObject
+    attributes
+        encendido: Boolean
+    operations
+      encender()
+        begin
+            self.encendido := true
+        end
+
+        apagar()
+        begin
+            self.encendido := false
+        end
+end
+
+class SensorLuminico < Sensor
+    attributes
+        luzIdeal : Real derive : self.habitacion.habitante.preferenciaLuz->sum() / self.habitacion.habitante->size()
+end
+
+class SensorTemperatura < Sensor
+    attributes
+        temperaturaIdeal: Real derive : self.habitacion.habitante.preferenciaTemperatura->sum() / self.habitacion.habitante->size()
+end
+
+class SensorHumedad < Sensor 
+end
+
+class SensorCO2 < Sensor 
+end
+
+class Planta
+end
+
+class AireAcondicionado < Regulador
+    attributes
+        temperatura: Integer
+    operations
+    cambioTemperatura(t: Integer)
+        begin
+            self.habitacion.aire.temperatura := t
+        end
+    
+end
+
+class PurificadorDeAire < Regulador
+end
+
+class Monitor
+    operations
+        encenderLuz()
+        begin
+            self.habitacion.luz.encender()
+        end
+
+        apagarLuz()
+        begin
+            self.habitacion.luz.apagar()
+        end
+
+        encenderAire()
+        begin
+            self.habitacion.aire.encender()
+        end
+
+        cambioTemperatura(t: Integer)
+        begin
+            self.habitacion.aire.temperatura := t
+        end
+
+        apagarAire()
+        begin
+            self.habitacion.aire.apagar()
+        end
+
+        encenderPurificador()
+        begin
+            self.habitacion.purificador.encender()
+        end
+
+        apagarPurificador()
+        begin
+            self.habitacion.purificador.apagar()
+        end
+
+        encenderRegulador()
+        begin
+            self.habitacion.regulador.encender()
+        end
+
+        apagarRegulador()
+        begin
+            self.habitacion.regulador.apagar()
+        end
+end
+
+class Luz < Regulador
+    attributes
+        intensidad: Integer
+end
+
+class ReguladorHumedad < Regulador
+end
+
+class Clock  
+  attributes
+    NOW : Integer init = 0 -- POSIX representation starting at 0
+    resolution: Integer init = 1 
+  operations
+    tick() 
+      begin
+        self.NOW := self.NOW + self.resolution;
+        for o in self.ao do 
+            o.tick()
+        end;
+      end
+    run (n: Integer)
+      begin
+        for i in Sequence{1..n} do
+          self.tick()
+        end 
+      end
+end
+
+-----Relaciones-------
+
+composition EdificioPlanta between
+    Edificio [1] role edificio
+    Planta [1..*] role planta 
+end
+
+composition PlantaHabitacion between
+    Planta [1] role planta
+    Habitacion [1..*] role habitacion  
+end
+
+aggregation HabitacionSensorLuz between
+    Habitacion [1] role habitacion
+    SensorLuminico [1] role sensorLuminico 
+end
+
+aggregation HabitacionSensorHumedad between
+    Habitacion [1] role habitacion
+    SensorHumedad [1] role sensorHumedad 
+end
+
+aggregation HabitacionSensorCO2 between
+    Habitacion [1] role habitacion
+    SensorCO2 [1..*] role sensorCO2  
+end
+
+aggregation HabitacionSensorTemperatura between
+    Habitacion [1] role habitacion
+    SensorTemperatura [1..*] role sensorTemperatura 
+end
+
+aggregation HabitacionMonitor between
+    Habitacion [1] role habitacion
+    Monitor [1] role monitor 
+end
+
+aggregation HabitacionAire between
+    Habitacion [1] role habitacion
+    AireAcondicionado [1] role aire 
+end
+
+aggregation HabitacionLuz between
+    Habitacion [1] role habitacion
+    Luz [1] role luz
+end
+
+aggregation HabitacionReguladorHumedad between
+    Habitacion [1] role habitacion
+    ReguladorHumedad [1] role regulador 
+end
+
+association HabitacionHabitante between
+    Habitacion [1] role habitacion
+    Habitante [1..*] role habitante 
+end
+
+aggregation HabitacionPurificador between
+    Habitacion [1] role habitacion
+    PurificadorDeAire [1] role purificador  
+end
+
+association Time between 
+  Clock [1] 
+  ActiveObject [*] role ao ordered
+end
+

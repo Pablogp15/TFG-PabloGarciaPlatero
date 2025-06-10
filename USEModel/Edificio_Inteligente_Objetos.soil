@@ -1,0 +1,48 @@
+reset
+!new Edificio('edificio')
+!new Planta('primeraPlanta')
+!new Habitacion('habitacion')
+
+!new Habitante('Manoli')
+!Manoli.preferenciaLuz := 4
+!Manoli.preferenciaTemperatura := 23
+!new Habitante('Juani')
+!Juani.preferenciaLuz := 2
+!Juani.preferenciaTemperatura := 27
+
+!new SensorCO2('sensorCO2')
+!new SensorHumedad('sensorHumedad')
+!new SensorLuminico('sensorLuminico')
+!new SensorTemperatura('sensorTemperatura')
+
+!new Luz('luz')
+!new ReguladorHumedad('reguladorHumedad')
+!new PurificadorDeAire('purificadorDeAire')
+!new AireAcondicionado('aireAcondicionado')
+
+!new Monitor('monitor')
+
+!new Clock('clock')
+!new Tiempo('tiempo')
+!tiempo.mes := 4
+
+!insert(edificio,primeraPlanta) into EdificioPlanta
+!insert(primeraPlanta, habitacion) into PlantaHabitacion
+!insert(habitacion, Manoli) into HabitacionHabitante
+!insert(habitacion, Juani) into HabitacionHabitante
+!insert(habitacion, sensorCO2) into HabitacionSensorCO2
+!insert(habitacion, sensorHumedad) into HabitacionSensorHumedad
+!insert(habitacion, sensorLuminico) into HabitacionSensorLuz
+!insert(habitacion, sensorTemperatura) into HabitacionSensorTemperatura
+!insert(habitacion, luz) into HabitacionLuz
+!insert(habitacion, reguladorHumedad) into HabitacionReguladorHumedad
+!insert(habitacion, purificadorDeAire) into HabitacionPurificador
+!insert(habitacion, aireAcondicionado) into HabitacionAire
+!insert(habitacion, monitor) into HabitacionMonitor
+!insert(clock, sensorCO2) into Time
+!insert(clock, sensorHumedad) into Time
+!insert(clock, sensorLuminico) into Time
+!insert(clock, sensorTemperatura) into Time
+!insert (tiempo, clock) into Time
+
+check

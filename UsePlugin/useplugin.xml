@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?use version="7.1.1"?>
+<plugin name="My Plugin" version="7.1.1-r1">
+    <actions>
+        <action label="Execute python algorithms" icon="resources/PythonAlgorithms.gif"
+                class="com.example.pythonExecuterDelegate" tooltip="Execute python algorithms"
+                menu="View" menuitem="Python Algorithms" toolbaritem="plugins"
+                id="com.example.pythonExecuterDelegate">
+        </action>
+    </actions>
+</plugin>
